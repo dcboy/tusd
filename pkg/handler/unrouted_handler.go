@@ -160,9 +160,12 @@ func (handler *UnroutedHandler) Middleware(h http.Handler) http.Handler {
 		// so this deadline is usually not final. See the bodyReader and writeChunk.
 		// We also update the write deadline, but makes sure that it is larger than the read deadline, so we
 		// can still write a response in the case of a read timeout.
-		if err := c.resC.SetReadDeadline(time.Now().Add(handler.config.NetworkTimeout)); err != nil {
-			c.log.Warn("NetworkControlError", "error", err)
+		if r.Body != nil {
+			if err := c.resC.SetReadDeadline(time.Now().Add(handler.config.NetworkTimeout)); err != nil {
+				c.log.Warn("NetworkControlError", "error", err)
+			}
 		}
+
 		if err := c.resC.SetWriteDeadline(time.Now().Add(2 * handler.config.NetworkTimeout)); err != nil {
 			c.log.Warn("NetworkControlError", "error", err)
 		}
